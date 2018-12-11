@@ -1,0 +1,109 @@
+version: '3'
+
+services:
+  st2web:
+    image: stackstorm/st2web:${ST2_IMAGE_TAG:-latest}
+    env_file:
+      - conf/stweb2.env
+
+    depends_on:
+      - nginx
+    
+    networks:
+      - private
+    volume:
+      - st2-ssl-certs-volume:/etc/ssl/st2
+
+  st2chatops:
+    image: stackstorm/st2chatops:${ST2_IMAGE_TAG:-latest}
+    env_file:
+      - conf/chatops.env
+    depends_on:
+      - nginx
+    
+    networks:
+      - private
+    
+    volumes:
+      - st2-chatops-volume:
+  ngnix:
+    image: nginx
+    env_file:
+      - conf/ngnix.env
+
+    ports:
+      - "443:443"
+    
+    networks:
+      - private
+      - public
+
+    volumes:
+      - st2-nginx-configs:/
+
+
+  mongo:
+    image: mongo:3.4
+    env_file:
+      - conf/mongo.env
+    networks:
+      - public
+    volumes:
+      - mongo-volume:/data/db
+      - mongo-configdb-volume:/data/configdb
+    dns_search: .
+
+  rabbitmq:
+    image: rabbitmq:3.6-management
+    env_file:
+      - conf/rabbitmq.env
+    networks:
+      - public
+    volumes:
+      - rabbitmq-volume:/var/lib/rabbitmq
+    dns_search: .
+
+  postgres:
+    image: postgres:9.6
+    env_file:
+      - conf/postgres.env
+    networks:
+      - public
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data
+    dns_search: .
+
+  redis:
+    image: redis:4.0
+    env_file:
+      - conf/redis.env
+    networks:
+      - publics
+    volumes:
+      - redis-volume:/data
+    dns_search: .
+    command: [
+      "bash", "-c",
+      '
+       docker-entrypoint.sh
+       --requirepass "$$REDIS_PASSWORD"
+      '
+    ]
+
+
+volumes:
+  st2-ssl-certs-volume:
+  st2-chatops-volume:
+  ngnix-volume:
+  redis-volume:
+  postgres-volume:
+  rabbitmq-volume:
+  mongodb-volume:
+  mongo-configdb-volume:
+
+networks:
+  private:
+    driver: bridge
+  
+  public:
+    drive: bridge

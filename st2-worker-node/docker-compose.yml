@@ -1,0 +1,46 @@
+version: '3'
+
+services:
+  st2auth:
+    image: stackstorm/st2auth:${ST2_IMAGE_TAG:-latest}
+    depends_on:
+      - nginx
+    networks:
+      - private
+  st2api:
+    image: stackstorm/st2api:${ST2_IMAGE_TAG:-latest}
+    depends_on:
+      - nginx
+    networks:
+      - private
+  st2stream:
+    image: stackstorm/st2steam:${ST2_IMAGE_TAG:-latest}
+    depends_on:
+      - nginx
+    networks:
+      - private
+
+  st2actionrunner:
+    image: stackstorm/st2actionrunner:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
+  st2rulesengine:
+    image: stackstorm/st2rulesengine:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
+  st2sensors:
+    image: stackstorm/st2sensorcontainer:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
+  st2garbagecollector:
+    image: stackstorm/st2garbagecollector:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
+  st2resulttracker:
+    image: stackstorm/st2resulttracker:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
+  st2notifier:
+    image: stackstorm/st2notifier:${ST2_IMAGE_TAG:-latest}
+    networks:
+      - private
